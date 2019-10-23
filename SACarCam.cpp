@@ -28,7 +28,7 @@ int gtaversion = -1;
 #define DefaultFOV 70.0f
 
 // Car zoom modes per veh. types doesn't exist in III, so we will emulate it :)
-// Just change the values for VC
+// We're just injecting the values for VC
 float CarZoomModes[] = {
 	-1.8f, -0.2f, -3.2f, 0.05f, -3.21f, // near
 	0.2f, 1.4f, 0.65f, 1.9f, 5.69f, // mid
@@ -36,7 +36,8 @@ float CarZoomModes[] = {
 };
 
 /*
-// Original array, but doesn't give same results as SA (Due to collision bounding box sizes?)
+// Original SA array, but doesn't give same results as SA (Due to collision bounding box sizes?)
+// LCS has different mid/far values, near is same
 float CarZoomModes[] = {
 	-1.0f, -0.2f, -3.2f, 0.05f, -2.41f, // near
 	1.0f, 1.4f, 0.65f, 1.9f, 6.49f, // mid
@@ -226,6 +227,7 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 		camSetArrPos = 2;
 	}
 
+	// Seems same with LCS, at least the ones I've looked.
 	float CARCAM_SET[][15] = {
 		{1.3f, 1.0f, 0.4f, 10.0f, 15.0f, 0.5f, 1.0f, 1.0f, 0.85f, 0.2f, 0.075f, 0.05f, 0.8f, 0.785398f, 1.5533431f},
 		{1.1f, 1.0f, 0.1f, 10.0f, 11.0f, 0.5f, 1.0f, 1.0f, 0.85f, 0.2f, 0.075f, 0.05f, 0.75f, 0.78539819f, 1.5533431f},
