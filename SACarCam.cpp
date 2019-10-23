@@ -24,9 +24,9 @@ int gtaversion = -1;
 // Car zoom modes per veh. types doesn't exist in III, so we will emulate it :)
 // Just change the values for VC
 float CarZoomModes[] = {
-	-1.9f, -0.2f, -3.2f, 0.05f, -3.21f, // near
-	1.1f, 2.2f, 1.65f, 2.9f, 5.69f, // mid
-	5.1f, 6.0f, 15.9f, 15.9f, 14.2f // far
+	-2.0f, -0.2f, -3.2f, 0.05f, -3.20f, // near
+	1.0f, 2.2f, 1.65f, 2.9f, 5.68f, // mid
+	5.0f, 6.0f, 15.9f, 15.9f, 14.1f // far
 };
 
 /*
