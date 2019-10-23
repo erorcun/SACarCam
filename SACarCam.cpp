@@ -235,7 +235,7 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 	};
 
 	float ZmOneAlphaOffset[] = { 0.12f, 0.08f, 0.15f, 0.08f, 0.08f };
-	float ZmTwoAlphaOffset[] = { 0.01f, 0.08f, 0.3f, 0.08f, 0.08f };
+	float ZmTwoAlphaOffset[] = { 0.1f, 0.08f, 0.3f, 0.08f, 0.08f };
 	float ZmThreeAlphaOffset[] = { 0.065f, 0.05f, 0.15f, 0.06f, 0.08f };
 
 	// RC Heli/planes use same alpha values with heli/planes (LCS firetruck will fallback to 0)
