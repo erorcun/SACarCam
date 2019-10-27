@@ -143,6 +143,14 @@ float GetATanOfXY(float x, float y) {
 	}
 }
 
+float GetMouseAccel(CCameraVC* camera) {
+	return *(float*)0x94DBD0; // CCamera::m_fMouseAccelHorzntl
+}
+
+float GetMouseAccel(CCameraIII* camera) {
+	return camera->m_fMouseAccelHorzntl;
+}
+
 const CVector
 Multiply3x3(const CMatrix& mat, const CVector& vec)
 {
@@ -525,8 +533,8 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 	}
 
 	// Right stick
-	float stickX = -(pad->GetCarGunLeftRight());
-	float stickY = pad->GetCarGunUpDown();
+	float stickX = -(pad->LookAroundLeftRight());
+	float stickY = pad->LookAroundUpDown();
 
 	// Why??
 	if (m_bUseMouse3rdPerson)
@@ -580,10 +588,10 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 		if ((mouseX != 0.0 || mouseY != 0.0) && (m_bDisableMouseSteering))
 		{
 			float v113 = cam->FOV * 0.0125;
-			yMovement = mouseY * v113 * 0.0025f; // TheCamera.m_fMouseAccelHorzntl?, I think there is no TheCamera.m_fMouseAccelVertical in SA
+			yMovement = mouseY * v113 * GetMouseAccel(TheCamera); // Same as SA, horizontal sensitivity.
 			cam->BetaSpeed = 0.0;
 			cam->AlphaSpeed = 0.0;
-			xMovement = mouseX * v113 * 0.0025f; // TheCamera.m_fMouseAccelHorzntl;
+			xMovement = mouseX * v113 * GetMouseAccel(TheCamera);
 			targetAlpha = cam->Alpha;
 			stepsLeftToChangeBetaByMouse = 1.0f * 50.0f;
 			mouseChangesBeta = true;
@@ -645,6 +653,7 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 		v121 = ms_fTimeStep * cam->BetaSpeed;
 	cam->Beta = v121 + cam->Beta;
 
+	// SA:
 	if (TheCamera->m_bJustCameOutOfGarage)
 		cam->Beta = GetATanOfXY(cam->Front.x, cam->Front.y) + PI;
 
@@ -652,6 +661,20 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 		cam->Beta += TWOPI;
 	else if (cam->Beta > PI)
 		cam->Beta -= TWOPI;
+
+	/* LCS:
+	if (TheCamera->m_bJustCameOutOfGarage) {
+		float v168 = atan2f(cam->Front.y, cam->Front.x);
+		if (v168 < 0.0f)
+			v168 = v168 + TWOPI;
+
+		cam->Beta = v168 + PI;
+	}
+
+	cam->Beta = LimitRadianAngle(cam->Beta);
+	if (cam->Beta < 0.0f)
+		cam->Beta += TWOPI;
+	*/
 
 	if ((camSetArrPos <= 1 || camSetArrPos == 7) && targetAlpha < cam->Alpha && carPosChange >= newDistance) {
 		if (isCar && GetWheelsOnGround(car) > 1 ||

@@ -38,29 +38,31 @@ public:
 class CPad
 {
 public:
-/*
-	// III
-	CControllerState NewState;
-	CControllerState OldState;
-	CControllerState PCTempKeyState;
-	CControllerState PCTempJoyState;
-	CControllerState PCTempMouseState;
-	int16 Phase;
-	int16 Mode;
-	int16 ShakeDur;
-	uint8 ShakeFreq;
-	bool bHornHistory[5];
-	uint8 iCurrHornHistory;
-	uint8 DisablePlayerControls;
-	int8 bApplyBrakes;
-	char _unk[12]; //int32 unk[3];
-	char _pad0[3];
-	int32 LastTimeTouched;
-	int32 AverageWeapon;
-	int32 AverageEntries;
-*/
-	static CMouseControllerState &NewMouseControllerState;
+	/*
+		// III
+		CControllerState NewState;
+		CControllerState OldState;
+		CControllerState PCTempKeyState;
+		CControllerState PCTempJoyState;
+		CControllerState PCTempMouseState;
+		int16 Phase;
+		int16 Mode;
+		int16 ShakeDur;
+		uint8 ShakeFreq;
+		bool bHornHistory[5];
+		uint8 iCurrHornHistory;
+		uint8 DisablePlayerControls;
+		int8 bApplyBrakes;
+		char _unk[12]; //int32 unk[3];
+		char _pad0[3];
+		int32 LastTimeTouched;
+		int32 AverageWeapon;
+		int32 AverageEntries;
+	*/
+	static CMouseControllerState& NewMouseControllerState;
 
+	int16 LookAroundUpDown(void);
+	int16 LookAroundLeftRight(void);
 	int16 GetSteeringUpDown(void);
 	int16 GetCarGunUpDown(void);
 	int16 GetCarGunLeftRight(void);
@@ -74,4 +76,4 @@ public:
 };
 //static_assert(sizeof(CPad) == 0xFC, "CPad: this is broken as shit");
 
-extern CPad &pad0;
+extern CPad& pad0;
