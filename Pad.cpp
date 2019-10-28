@@ -3,7 +3,7 @@
 #include "Camera.h"
 #include "Pad.h"
 
-// These functions (which is commented out as of now) is belong to Fire_Head.
+// These functions (which is commented out as of now) are belong to Fire_Head.
 
 CPad &pad0 = *AddressByVersion<CPad*>(0x6F0360, 0, 0, 0x7DBCB0, 0, 0);
 CMouseControllerState &CPad::NewMouseControllerState = *AddressByVersion<CMouseControllerState*>(0x8809F0, 0, 0, 0x94D788, 0, 0);
@@ -24,9 +24,11 @@ WRAPPER bool CPad::GetLookRight(void) { EAXJMP(glrAddress); }
 WRAPPER bool CPad::GetLookLeft(void) { EAXJMP(gllAddress); }
 WRAPPER int16 CPad::GetCarGunLeftRight(void) { EAXJMP(gcglrAddress); }
 WRAPPER int16 CPad::GetCarGunUpDown(void) { EAXJMP(gcgudAddress); }
+WRAPPER int16 CPad::GetSteeringUpDown(void) { EAXJMP(gsudAddress); }
+
+// Unused:
 WRAPPER int16 CPad::LookAroundLeftRight(void) { EAXJMP(lalrAddress); }
 WRAPPER int16 CPad::LookAroundUpDown(void) { EAXJMP(laudAddress); }
-WRAPPER int16 CPad::GetSteeringUpDown(void) { EAXJMP(gsudAddress); }
 
 #if 0
 int16 CPad::GetSteeringUpDown(void)

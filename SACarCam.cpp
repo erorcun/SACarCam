@@ -4,8 +4,15 @@
 #include "Camera.h"
 #include "Pad.h"
 
+#include "ModuleList.hpp"
+#include "GInputAPI.h"
+
 HMODULE dllModule, hDummyHandle;
 int gtaversion = -1;
+
+IGInputPad* ginputPad;
+int ginputLoaded = 0; // 1: not installed 2: installed
+GINPUT_PAD_SETTINGS padSettings = {};
 
 #define MI_RELCS_FIRETRUCK 138
 #define MI_RELCS_RHINO 162
@@ -191,6 +198,16 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 
 	if (!cam->CamTargetEntity->IsVehicle())
 		return;
+
+	if (!ginputLoaded) {
+		if (GInput_Load(&ginputPad)) {
+			padSettings.cbSize = sizeof(GINPUT_PAD_SETTINGS);
+			ginputPad->SendEvent(GINPUT_EVENT_FETCH_PAD_SETTINGS, &padSettings);
+			ginputLoaded = 2;
+		}
+		else
+			ginputLoaded = 1;
+	}
 
 	VehicleClass* car = (VehicleClass*)cam->CamTargetEntity;
 	CVector TargetCoors = CameraTarget;
@@ -533,12 +550,22 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 	}
 
 	// Right stick
-	float stickX = -(pad->LookAroundLeftRight());
-	float stickY = pad->LookAroundUpDown();
+	float stickX = -(pad->GetCarGunLeftRight());
+	float stickY = pad->GetCarGunUpDown();
 
 	// Why??
 	if (m_bUseMouse3rdPerson)
 		stickY = 0.0f;
+	else {
+		// Added in r4. GInput doesn't hook VC's Y-axis invert option, so that was needed
+		if (ginputPad->HasPadInHands() && padSettings.InvertLook)
+			stickY = -stickY;
+
+		// Hidden Y-axis invert option in VC. just in case
+		if (isVC())
+			if (*(bool*)0xA10AF7)
+				stickY = -stickY;
+	}
 
 	float v103 = cam->FOV * 0.0125f;
 
