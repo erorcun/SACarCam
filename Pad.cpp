@@ -24,9 +24,11 @@ WRAPPER bool CPad::GetLookRight(void) { EAXJMP(glrAddress); }
 WRAPPER bool CPad::GetLookLeft(void) { EAXJMP(gllAddress); }
 WRAPPER int16 CPad::GetCarGunLeftRight(void) { EAXJMP(gcglrAddress); }
 WRAPPER int16 CPad::GetCarGunUpDown(void) { EAXJMP(gcgudAddress); }
+WRAPPER int16 CPad::GetSteeringUpDown(void) { EAXJMP(gsudAddress); }
+
+// Unused
 WRAPPER int16 CPad::LookAroundLeftRight(void) { EAXJMP(lalrAddress); }
 WRAPPER int16 CPad::LookAroundUpDown(void) { EAXJMP(laudAddress); }
-WRAPPER int16 CPad::GetSteeringUpDown(void) { EAXJMP(gsudAddress); }
 
 #if 0
 int16 CPad::GetSteeringUpDown(void)

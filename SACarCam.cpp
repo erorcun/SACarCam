@@ -4,6 +4,9 @@
 #include "Camera.h"
 #include "Pad.h"
 
+#include "ModuleList.hpp"
+#include "GInputAPI.h"
+
 HMODULE dllModule, hDummyHandle;
 int gtaversion = -1;
 
@@ -27,6 +30,10 @@ int gtaversion = -1;
 
 #define DefaultFOV 70.0f
 
+IGInputPad* ginputPad;
+int ginputLoaded = 0; // 1: not installed 2: installed
+GINPUT_PAD_SETTINGS padSettings = {};
+
 // Car zoom modes per veh. types doesn't exist in III, so we will emulate it :)
 // We're just injecting the values for VC
 float CarZoomModes[] = {
@@ -37,7 +44,6 @@ float CarZoomModes[] = {
 
 /*
 // Original SA array, but doesn't give same results as SA (Due to collision bounding box sizes?)
-// LCS has different mid/far values, near is same
 float CarZoomModes[] = {
 	-1.0f, -0.2f, -3.2f, 0.05f, -2.41f, // near
 	1.0f, 1.4f, 0.65f, 1.9f, 6.49f, // mid
@@ -199,6 +205,15 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 	if (!cam->CamTargetEntity->IsVehicle())
 		return;
 
+	if (!ginputLoaded) {
+		if (GInput_Load(&ginputPad)) {
+			padSettings.cbSize = sizeof(GINPUT_PAD_SETTINGS);
+			ginputPad->SendEvent(GINPUT_EVENT_FETCH_PAD_SETTINGS, &padSettings);
+			ginputLoaded = 2;
+		} else
+			ginputLoaded = 1;
+	}
+
 	VehicleClass* car = (VehicleClass*)cam->CamTargetEntity;
 	CVector TargetCoors = CameraTarget;
 	uint8 camSetArrPos = 0;
@@ -235,7 +250,6 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 		camSetArrPos = 2;
 	}
 
-	// Seems same with LCS, at least the ones I've looked.
 	float CARCAM_SET[][15] = {
 		{1.3f, 1.0f, 0.4f, 10.0f, 15.0f, 0.5f, 1.0f, 1.0f, 0.85f, 0.2f, 0.075f, 0.05f, 0.8f, 0.785398f, 1.5533431f},
 		{1.1f, 1.0f, 0.1f, 10.0f, 11.0f, 0.5f, 1.0f, 1.0f, 0.85f, 0.2f, 0.075f, 0.05f, 0.75f, 0.78539819f, 1.5533431f},
@@ -246,7 +260,6 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 		{1.1f, 1.0f, 0.2f, 10.0f, 5.0f, 0.5f, 1.0f, 1.0f, 0.75f, 0.1f, 0.005f, 0.2f, 1.0f, 0.34906587f, 1.2217305f} // rc heli/planes
 	};
 
-	// First value of the array below is 0.12f in LCS (camera is higher in near mode)
 	float ZmOneAlphaOffset[] = { 0.08f, 0.08f, 0.15f, 0.08f, 0.08f };
 	float ZmTwoAlphaOffset[] = { 0.07f, 0.08f, 0.3f, 0.08f, 0.08f };
 	float ZmThreeAlphaOffset[] = { 0.055f, 0.05f, 0.15f, 0.06f, 0.08f };
@@ -543,13 +556,23 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 		targetAlphaBlendAmount = maxAlphaBlendAmount;
 	}
 
-	// Right stick
-	float stickX = -(pad->LookAroundLeftRight());
-	float stickY = pad->LookAroundUpDown();
+	// Using GetCarGun(LR/UD) with Y-axis invert check will give us same unprocessed RightStick value as SA
+	float stickX = -(pad->GetCarGunLeftRight());
+	float stickY = pad->GetCarGunUpDown();
 
 	// Why??
 	if (m_bUseMouse3rdPerson)
 		stickY = 0.0f;
+	else {
+		// Added in r4. GInput doesn't hook VC's Y-axis invert option, so that was needed
+		if (ginputPad->HasPadInHands() && padSettings.InvertLook)
+			stickY = -stickY;
+
+		// Hidden Y-axis invert option in VC. just in case
+		if (isVC())
+			if (*(bool*)0xA10AF7)
+				stickY = -stickY;
+	}
 
 	float v103 = cam->FOV * 0.0125f;
 
