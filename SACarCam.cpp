@@ -184,6 +184,12 @@ Multiply3x3(const CVector& vec, const CMatrix& mat)
 
 int previousMode = 0;
 
+static void OnGInputSettingsReload()
+{
+	padSettings.cbSize = sizeof(padSettings);
+	ginputPad->SendConstEvent(GINPUT_EVENT_FETCH_PAD_SETTINGS, &padSettings);
+}
+
 template<class CamClass, class CameraClass, class VehicleClass, class WorldClass, class ColModelClass>
 void
 Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamClass* cam, CameraClass* TheCamera) // bool sthForScript)
@@ -207,8 +213,8 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 
 	if (!ginputLoaded) {
 		if (GInput_Load(&ginputPad)) {
-			padSettings.cbSize = sizeof(GINPUT_PAD_SETTINGS);
-			ginputPad->SendEvent(GINPUT_EVENT_FETCH_PAD_SETTINGS, &padSettings);
+			OnGInputSettingsReload();
+			ginputPad->SendEvent(GINPUT_EVENT_REGISTER_SETTINGS_RELOAD_CALLBACK, OnGInputSettingsReload);
 			ginputLoaded = 2;
 		} else
 			ginputLoaded = 1;
