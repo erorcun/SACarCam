@@ -184,6 +184,12 @@ Multiply3x3(const CVector& vec, const CMatrix& mat)
 
 int previousMode = 0;
 
+static void OnGInputSettingsReload()
+{
+	padSettings.cbSize = sizeof(padSettings);
+	ginputPad->SendConstEvent(GINPUT_EVENT_FETCH_PAD_SETTINGS, &padSettings);
+}
+
 template<class CamClass, class CameraClass, class VehicleClass, class WorldClass, class ColModelClass>
 void
 Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamClass* cam, CameraClass* TheCamera) // bool sthForScript)
@@ -207,8 +213,8 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 
 	if (!ginputLoaded) {
 		if (GInput_Load(&ginputPad)) {
-			padSettings.cbSize = sizeof(GINPUT_PAD_SETTINGS);
-			ginputPad->SendEvent(GINPUT_EVENT_FETCH_PAD_SETTINGS, &padSettings);
+			OnGInputSettingsReload();
+			ginputPad->SendEvent(GINPUT_EVENT_REGISTER_SETTINGS_RELOAD_CALLBACK, OnGInputSettingsReload);
 			ginputLoaded = 2;
 		} else
 			ginputLoaded = 1;
@@ -560,12 +566,14 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 	float stickX = -(pad->GetCarGunLeftRight());
 	float stickY = pad->GetCarGunUpDown();
 
-	// Why??
-	if (m_bUseMouse3rdPerson)
+	// In SA this checks for m_bUseMouse3rdPerson so num2/num8 do not move camera
+	// when Keyboard & Mouse controls are used. To work best with GInput, check for actual pad state instead
+	const bool ginputHasPad = ginputPad->HasPadInHands();
+	if (ginputLoaded == 2 ? !ginputHasPad : m_bUseMouse3rdPerson)
 		stickY = 0.0f;
 	else {
 		// Added in r4. GInput doesn't hook VC's Y-axis invert option, so that was needed
-		if (ginputPad->HasPadInHands() && padSettings.InvertLook)
+		if (ginputHasPad && padSettings.InvertLook)
 			stickY = -stickY;
 
 		// Hidden Y-axis invert option in VC. just in case
