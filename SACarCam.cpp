@@ -560,12 +560,14 @@ Process_FollowCar_SA(const CVector& CameraTarget, float TargetOrientation, CamCl
 	float stickX = -(pad->GetCarGunLeftRight());
 	float stickY = pad->GetCarGunUpDown();
 
-	// Why??
-	if (m_bUseMouse3rdPerson)
+	// In SA this checks for m_bUseMouse3rdPerson so num2/num8 do not move camera
+	// when Keyboard & Mouse controls are used. To work best with GInput, check for actual pad state instead
+	const bool ginputHasPad = ginputPad->HasPadInHands();
+	if (ginputLoaded == 2 ? !ginputHasPad : m_bUseMouse3rdPerson)
 		stickY = 0.0f;
 	else {
 		// Added in r4. GInput doesn't hook VC's Y-axis invert option, so that was needed
-		if (ginputPad->HasPadInHands() && padSettings.InvertLook)
+		if (ginputHasPad && padSettings.InvertLook)
 			stickY = -stickY;
 
 		// Hidden Y-axis invert option in VC. just in case
