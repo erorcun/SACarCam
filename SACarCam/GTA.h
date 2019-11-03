@@ -324,6 +324,35 @@ public:
 	RwMatrix* m_attachment;
 	bool m_hasRwMatrix;	// are we the owner?
 
+	CMatrix(void) {
+		m_attachment = nil;
+		m_hasRwMatrix = false;
+	}
+	void SetRotateZOnly(float angle) {
+		float c = cosf(angle);
+		float s = sinf(angle);
+
+		m_matrix.right.x = c;
+		m_matrix.right.y = s;
+		m_matrix.right.z = 0.0f;
+
+		m_matrix.up.x = -s;
+		m_matrix.up.y = c;
+		m_matrix.up.z = 0.0f;
+
+		m_matrix.at.x = 0.0f;
+		m_matrix.at.y = 0.0f;
+		m_matrix.at.z = 1.0f;
+	}
+	void SetRotateZ(float angle) {
+		SetRotateZOnly(angle);
+		m_matrix.pos.x = 0.0f;
+		m_matrix.pos.y = 0.0f;
+		m_matrix.pos.z = 0.0f;
+	}
+	void Attach(RwMatrix* matrix, bool owner = false);
+	void UpdateRW(void);
+
 	CVector& GetPosition(void) { return *(CVector*)& m_matrix.pos; }
 	CVector& GetRight(void) { return *(CVector*)& m_matrix.right; }
 	CVector& GetForward(void) { return *(CVector*)& m_matrix.up; }
